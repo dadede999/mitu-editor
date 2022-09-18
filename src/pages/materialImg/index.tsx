@@ -20,7 +20,7 @@ interface IProps {
   canvasRef: React.RefObject<any>;
 }
 
-const Material: React.FC = (props: IProps) => {
+const MaterialImg: React.FC = (props: IProps) => {
   const { canvasRef } = props;
 
   const insertMaterial = (item) => {
@@ -104,4 +104,4 @@ const Material: React.FC = (props: IProps) => {
   );
 };
 
-export default Material;
+export default MaterialImg;

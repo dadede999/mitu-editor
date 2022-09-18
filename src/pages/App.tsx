@@ -13,11 +13,12 @@ import {
 import { useEffect, useState, useRef, ChangeEventHandler } from 'react';
 import { drawArrow, download } from '@/utils/tool';
 import Font from './font';
-import Material from './material';
+import MaterialImg from './materialImg';
 import FontFaceObserver from 'fontfaceobserver';
 import msk from '@/assets/msk.png';
 import logo from '@/assets/logo.png';
 import styles from './index.less';
+import Tpl from './menu/siderBar/tpl';
 
 type ElementType =
   | 'IText'
@@ -60,7 +61,8 @@ const baseShapeConfig = {
   Mask: {},
 };
 
-export default function App() {
+export default function App(props) {
+  const { setCanvasRef } = props;
   const [imgUrl, setImgUrl] = useState('');
   const [size, setSize] = useState([600, 400]);
   const [isShow, setIsShow] = useState(false);
@@ -183,7 +185,7 @@ export default function App() {
     download(getImgUrl(), nanoid(8) + '.png');
   };
 
-  const props = {
+  const uploadProps = {
     action: '',
     beforeUpload(file: File) {
       return new Promise((resolve) => {
@@ -217,6 +219,7 @@ export default function App() {
     // 存json
     const tpls = JSON.parse(localStorage.getItem('tpls') || '{}');
     tpls[id] = { json, t: val };
+    console.log('tplImgs: ', tpls);
     localStorage.setItem('tpls', JSON.stringify(tpls));
     // 存图片
     canvasRef.current.discardActiveObject();
@@ -224,6 +227,7 @@ export default function App() {
     const imgUrl = getImgUrl();
     const tplImgs = JSON.parse(localStorage.getItem('tplImgs') || '{}');
     tplImgs[id] = imgUrl;
+
     localStorage.setItem('tplImgs', JSON.stringify(tplImgs));
 
     setTpls((prev: any) => [...prev, { id, t: val }]);
@@ -245,7 +249,8 @@ export default function App() {
   };
 
   useEffect(() => {
-    canvasRef.current = new fabric.Canvas('canvas');
+    if (!canvasRef.current) canvasRef.current = new fabric.Canvas('canvas');
+    console.log('canvasRef.current: ', canvasRef.current, name);
     // 自定义删除按钮
     const deleteIcon =
       "data:image/svg+xml,%3C%3Fxml version='1.0' encoding='utf-8'%3F%3E%3C!DOCTYPE svg PUBLIC '-//W3C//DTD SVG 1.1//EN' 'http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd'%3E%3Csvg version='1.1' id='Ebene_1' xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink' x='0px' y='0px' width='595.275px' height='595.275px' viewBox='200 215 230 470' xml:space='preserve'%3E%3Ccircle style='fill:%23F44336;' cx='299.76' cy='439.067' r='218.516'/%3E%3Cg%3E%3Crect x='267.162' y='307.978' transform='matrix(0.7071 -0.7071 0.7071 0.7071 -222.6202 340.6915)' style='fill:white;' width='65.545' height='262.18'/%3E%3Crect x='266.988' y='308.153' transform='matrix(0.7071 0.7071 -0.7071 0.7071 398.3889 -83.3116)' style='fill:white;' width='65.544' height='262.179'/%3E%3C/g%3E%3C/svg%3E";
@@ -314,6 +319,8 @@ export default function App() {
       ctx.drawImage(img, -size / 2, -size / 2, size, size);
       ctx.restore();
     }
+
+    setCanvasRef(canvasRef);
   }, []);
 
   function handleFontChange(value: string) {
@@ -332,7 +339,7 @@ export default function App() {
   return (
     <div className={styles.wrap}>
       <main className={styles.contentWrap}>
-        <section className={styles.tplWrap}>
+        {/* <section className={styles.tplWrap}>
           <div className={styles.simpleTit}>模版素材</div>
           <div className={styles.tpls}>
             {tpls.map((item: { id: string; t: string }, i: number) => {
@@ -355,7 +362,8 @@ export default function App() {
               );
             })}
           </div>
-        </section>
+        </section> */}
+
         <section className={styles.canvasWrap}>
           <div className={styles.controlWrap}>
             <div className={styles.leftArea}>
@@ -445,7 +453,7 @@ export default function App() {
             </div>
             <div className={styles.shape}>
               <Tooltip placement="bottom" title="点击使用">
-                <Upload {...props}>
+                <Upload {...uploadProps}>
                   <div className={styles.img}>
                     <PictureOutlined />
                   </div>
@@ -509,7 +517,7 @@ export default function App() {
               </Tooltip>
             </div>
           </div>
-          <Material canvasRef={canvasRef} />
+          <MaterialImg canvasRef={canvasRef} />
           <div className={styles.simpleTit}>保存</div>
           <div className={styles.operationArea}>
             <Button
